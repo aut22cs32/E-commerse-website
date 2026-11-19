@@ -1,6 +1,5 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db, get_current_user
@@ -59,12 +58,14 @@ def add_to_cart(
             )
 
         cart_item.quantity += cart_data.quantity
+        cart_item.product = product
     else:
         cart_item = CartItem(
             user_id=current_user.id,
             product_id=cart_data.product_id,
             quantity=cart_data.quantity
         )
+        cart_item.product = product
         db.add(cart_item)
 
     db.commit()
@@ -85,7 +86,7 @@ def get_cart(
     return cart_items
 
 # Update Cart Quantity
-@router.put("/{cart_item_id}")
+@router.put("/{cart_item_id}", response_model=CartItemResponse)
 def update_cart(
     cart_item_id: int,
     cart_data: CartItemUpdate,

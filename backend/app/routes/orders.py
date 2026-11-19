@@ -9,7 +9,7 @@ from app.models.order import Order, OrderItem
 from app.models.cart import CartItem
 from app.models.product import Product
 from app.models.user import User
-from app.schemas.order import OrderResponse, OrderDetailResponse
+from app.schemas.order import OrderResponse, OrderDetailResponse, PlaceOrderRequest
 
 
 router = APIRouter(
@@ -21,6 +21,7 @@ router = APIRouter(
 # Place Order
 @router.post("/", response_model=OrderResponse)
 def place_order(
+    order_data: PlaceOrderRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -64,6 +65,10 @@ def place_order(
         new_order = Order(
             user_id=current_user.id,
             total_amount=total_amount,
+            customer_name=order_data.customer_name.strip(),
+            address=order_data.address.strip(),
+            phone=order_data.phone.strip(),
+            payment_method=order_data.payment_method,
             status="Pending"
         )
 
@@ -78,7 +83,7 @@ def place_order(
                 price=price
             )
 
-            db.add(order_item)
+            new_order.items.append(order_item)
             product.stock -= item.quantity
             db.delete(item)
 
@@ -125,18 +130,7 @@ def get_order_details(
             detail="Order not found"
         )
 
-    order_items = db.query(OrderItem).filter(
-        OrderItem.order_id == order_id
-    ).all()
-
-    return {
-        "id": order.id,
-        "user_id": order.user_id,
-        "total_amount": order.total_amount,
-        "status": order.status,
-        "created_at": order.created_at,
-        "items": order_items
-    }
+    return order
 
 
 # Cancel Order

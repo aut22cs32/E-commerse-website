@@ -1,5 +1,6 @@
 
 from pydantic import BaseModel, Field
+from app.schemas.product import ProductResponse
 
 
 class CartItemCreate(BaseModel):
@@ -12,6 +13,7 @@ class CartItemResponse(BaseModel):
     user_id: int
     product_id: int
     quantity: int
+    product: ProductResponse
 
     class Config:
         from_attributes = True

@@ -1,5 +1,6 @@
 
 from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database.connection import Base
 
 
@@ -21,3 +22,5 @@ class CartItem(Base):
     )
 
     quantity = Column(Integer, default=1, nullable=False)
+
+    product = relationship("Product")
