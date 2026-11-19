@@ -2,7 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
+from app.dependencies import get_db, get_admin_user
 from app.models.product import Product
 from app.schemas.product import ProductCreate, ProductResponse, ProductUpdate
 
@@ -17,7 +17,8 @@ router = APIRouter(
 @router.post("/", response_model=ProductResponse)
 def create_product(
     product_data: ProductCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _admin=Depends(get_admin_user),
 ):
     new_product = Product(**product_data.model_dump())
 
@@ -59,7 +60,8 @@ def get_product(
 def update_product(
     product_id: int,
     product_data: ProductUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _admin=Depends(get_admin_user),
 ):
     product = db.query(Product).filter(
         Product.id == product_id
@@ -87,7 +89,8 @@ def update_product(
 @router.delete("/{product_id}")
 def delete_product(
     product_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _admin=Depends(get_admin_user),
 ):
     product = db.query(Product).filter(
         Product.id == product_id

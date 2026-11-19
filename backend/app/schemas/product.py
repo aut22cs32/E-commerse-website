@@ -1,23 +1,23 @@
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 
 class ProductCreate(BaseModel):
-    name: str
+    name: str = Field(min_length=1, max_length=150)
     description: Optional[str] = None
-    price: float
-    category: str
+    price: float = Field(gt=0)
+    category: str = Field(min_length=1, max_length=100)
     image_url: Optional[str] = None
-    stock: int = 0
+    stock: int = Field(default=0, ge=0)
 
 class ProductUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[float] = Field(default=None, gt=0)
     category: Optional[str] = None
     image_url: Optional[str] = None
-    stock: Optional[int] = None
+    stock: Optional[int] = Field(default=None, ge=0)
     is_active: Optional[bool] = None
 
 
